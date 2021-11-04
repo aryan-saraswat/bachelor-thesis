@@ -29,23 +29,6 @@ class CourseCatalogSpider(scrapy.Spider):
         filtered_links = self.filter_links_by_layer(links, "%7C", 3)
         for link in filtered_links:
             page = response.urljoin(link.attrib['href'])
-            # if self.e3:
-            #     request = scrapy.Request(page, callback=self.extract_categories)
-            #     name = str(link.css('::text').get()).strip()
-            #     type = ""
-            #     if "(bne)" in name.lower():
-            #         type = "BNE"
-            #     elif "ios " in name.lower():
-            #         type = "IOS"
-            #     elif "kultur " in name.lower():
-            #         type = "Kultur und Gesellschaft"
-            #     elif "natur " in name.lower():
-            #         type = "Natur und Technik"
-            #     elif "wirtschaft" in name.lower():
-            #         type = "Wirtschaft"
-            #
-            #     request.meta["catalog"] = type
-            # else:
             request = scrapy.Request(page, callback=self.extract_categories)
             request.meta["catalog"] = "INKO"
             request.meta['faculty'] = link
@@ -149,13 +132,6 @@ class CourseCatalogSpider(scrapy.Spider):
         for link in subject_links:
             url = link.attrib['href']
             page = response.urljoin(url)
-            # if self.e3:
-            #     if link.css('::text').get().strip() not in ["belegen/abmelden", "Raumbuchung"]:
-            #         name_raw = link.css('::text').get()
-            #         name = name_raw.split("- ", 2)[2].split(" - Cr")[0]
-            #         id = self.extract_subject_id(url)
-            #         subject = Subject(url=url, name=name, id=id, parent_id=parent['catalog'])
-            #         request = scrapy.Request(page, callback=self.extract_e3, dont_filter=True)
             if link.css('::text').get().strip() not in ["belegen/abmelden", "Raumbuchung"]:
                 name = link.css('::text').get()
                 id = self.extract_subject_id(url)
