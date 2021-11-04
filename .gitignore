@@ -10,3 +10,6 @@ venv.bak/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+
+newproj/newproj/temp_results.json
+newproj/newproj/urlResponse.html
