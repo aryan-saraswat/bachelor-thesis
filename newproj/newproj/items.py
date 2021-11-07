@@ -66,6 +66,7 @@ class TimeEntry(scrapy.Item):
     duration = scrapy.Field()
     status = scrapy.Field()
     elearn = scrapy.Field()
+    einzeltermine_link = scrapy.Field()
 
 class Person(scrapy.Item):
     type="person"
