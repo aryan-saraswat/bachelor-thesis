@@ -8,9 +8,6 @@
 from itemadapter import ItemAdapter
 
 
-class NewprojPipeline:
+class VdbScraperPipeline:
     def process_item(self, item, spider):
-        # remove unwanted symbols
-        if len(item['name'].split('\n')) >= 2:
-            item['name'] = str(item['name']).split('\n')[1].strip(' ')
         return item

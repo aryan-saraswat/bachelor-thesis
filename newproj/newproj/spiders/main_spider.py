@@ -17,9 +17,6 @@ class CourseCatalogSpider(scrapy.Spider):
     table_summary_for_basics = "Grunddaten zur Veranstaltung"
     table_summary_for_more = "Weitere Angaben zur Veranstaltung"
 
-    def __init__(self, e3=False, *args, **kwargs):
-        self.e3 = e3
-
     def parse(self, response):
         return self.extract_faculties(response)
 
@@ -71,7 +68,6 @@ class CourseCatalogSpider(scrapy.Spider):
                 request = scrapy.Request(page, callback=self.extract_studyprograms)
                 request.meta['faculty'] = studyprogram
                 yield request
-
 
     def extract_studyprogram_content(self, response):
 
@@ -169,31 +165,10 @@ class CourseCatalogSpider(scrapy.Spider):
         subject['timetable'] = self.extract_timetable(response)
         subject['persons'] = self.extract_persons(response)
 
-        yield subject
-
-    def extract_e3(self, response):
-        subject = response.meta['subject']
-        # extract Grunddaten - table
-        # table_xpath = "//table[@summary=\"" + self.table_summary_for_basics + "\"]//tbody"
-        # table = response.xpath(table_xpath)[0]
-        # rowcount = int(float(table.xpath("count(tr)").get())-1)
-        subject['subject_type'] = response.xpath("//*[@id='basic_1']/following-sibling::*[1]/text()").get()
-        subject['sws'] = response.xpath("//*[@id='basic_6']/following-sibling::*[1]/text()").get()
-        subject['language'] = response.xpath("//*[@id='basic_16']/following-sibling::*[1]/text()").get()
-        subject['expected'] = response.xpath("//*[@id='basic_7']/following-sibling::*[1]/text()").get()
-        subject['max'] = response.xpath("//*[@id='basic_8']/following-sibling::*[1]/text()").get()
-        subject['credits'] = response.xpath("//*[@id='basic_9']/following-sibling::*[1]/text()").get().replace(" ", "")
-        # provide timetable entries and persons
-
-        subject['timetable'] = self.extract_timetable(response)
-
         path = "//table[@summary=\"" + self.table_summary_for_more + "\"]"
         subject['description'] = " ".join(response.xpath(path + "/*/th[contains(text(),'Kommentar')]/following-sibling::*//text()").getall())
-        subject['excluded'] = " ".join(response.xpath(path + "/*/th[contains(text(),'Voraussetzungen')]/following-sibling::*//text()").getall())
-        subject['exam'] = " ".join(response.xpath(path + "/*/th[contains(text(),'Leistungsnachweis')]/following-sibling::*//text()").getall())
 
         yield subject
-
 
     def extract_timetable(self, response):
         '''
@@ -216,6 +191,9 @@ class CourseCatalogSpider(scrapy.Spider):
                 status = self.clear_string(table.xpath(entry_element_str+"/td[8]/text()").get())
                 comment = self.clear_string(table.xpath(entry_element_str+"/td[9]/text()").get())
                 elearn = self.clear_string(table.xpath(entry_element_str+"/td[12]/text()").get())
+                einzeltermine_link = ''
+                if "expand" in table.xpath(entry_element_str+"/td[1]/a[1]/@href").get():
+                    einzeltermine_link = table.xpath(entry_element_str+"/td[1]/a[1]/@href").get()
                 entries.append(TimeEntry(day=day,
                                          time=time,
                                          rhythm=rhythm,
@@ -223,7 +201,8 @@ class CourseCatalogSpider(scrapy.Spider):
                                          room = room,
                                          status = status,
                                          comment = comment,
-                                         elearn = elearn)
+                                         elearn = elearn,
+                                         einzeltermine_link = einzeltermine_link)
                                )
         return entries
 
