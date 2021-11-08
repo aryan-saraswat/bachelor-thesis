@@ -165,6 +165,9 @@ class CourseCatalogSpider(scrapy.Spider):
         subject['timetable'] = self.extract_timetable(response)
         subject['persons'] = self.extract_persons(response)
 
+        path = "//table[@summary=\"" + self.table_summary_for_more + "\"]"
+        subject['description'] = " ".join(response.xpath(path + "/*/th[contains(text(),'Kommentar')]/following-sibling::*//text()").getall())
+
         yield subject
 
     def extract_timetable(self, response):
