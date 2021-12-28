@@ -11,5 +11,10 @@ venv.bak/
 __pycache__/
 *.py[cod]
 
-newproj/newproj/temp_results.json
-newproj/newproj/urlResponse.html
+thesis_work/lsf_scraper/lecture_results.json
+thesis_work/vdb_scraper/description_results.json
+
+thesis_work/vdb_scraper/vdb_scraper/description_results.json
+
+Courses_data.csv
+DegreesDataEn.py

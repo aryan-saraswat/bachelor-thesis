@@ -1,4 +1,4 @@
-# Scrapy settings for newproj project
+# Scrapy settings for lsf_scraper project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -7,14 +7,14 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'newproj'
+BOT_NAME = 'lsf_scraper'
 
-SPIDER_MODULES = ['newproj.spiders']
-NEWSPIDER_MODULE = 'newproj.spiders'
+SPIDER_MODULES = ['lsf_scraper.spiders']
+NEWSPIDER_MODULE = 'lsf_scraper.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'newproj (+http://www.yourdomain.com)'
+#USER_AGENT = 'lsf_scraper (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
@@ -45,13 +45,13 @@ ROBOTSTXT_OBEY = False
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 #SPIDER_MIDDLEWARES = {
-#    'newproj.middlewares.NewprojSpiderMiddleware': 543,
+#    'lsf_scraper.middlewares.NewprojSpiderMiddleware': 543,
 #}
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #DOWNLOADER_MIDDLEWARES = {
-#    'newproj.middlewares.NewprojDownloaderMiddleware': 543,
+#    'lsf_scraper.middlewares.NewprojDownloaderMiddleware': 543,
 #}
 
 # Enable or disable extensions
@@ -63,7 +63,7 @@ ROBOTSTXT_OBEY = False
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 #ITEM_PIPELINES = {
-#    'newproj.pipelines.NewprojPipeline': 300,
+#    'lsf_scraper.pipelines.NewprojPipeline': 300,
 #}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
