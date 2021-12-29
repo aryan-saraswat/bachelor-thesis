@@ -9,11 +9,14 @@ class CourseCatalogSpider(scrapy.Spider):
     name = 'vdb-scraper'
     allowed_domains = ['uni-due.de']
     start_urls = [
-        'https://www.uni-due.de/vdb/studiengang/liste'
+        'https://www.uni-due.de/vdb/en_EN/studiengang/liste'
     ]
 
-    def __init__(self, keywords=["angewandte informatik", "angewandte kognitions- und medienwissenschaft", "computer engineering"]):
-        self.keywords = keywords
+    #start_url_en = https://www.uni-due.de/vdb/en_EN/studiengang/liste
+    #start_url_de = 'https://www.uni-due.de/vdb/studiengang/liste'
+
+    def __init__(self, keywords_DE=["angewandte informatik", "angewandte kognitions- und medienwissenschaft", "computer engineering"], keywords_EN=['applied cognitive and media science', 'applied computer sience', 'computer engineering']):
+        self.keywords = keywords_EN
 
     def parse(self, response):
         return self.get_links(response)
