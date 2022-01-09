@@ -70,7 +70,6 @@ class CourseCatalogSpider(scrapy.Spider):
                 yield request
 
     def extract_studyprogram_content(self, response):
-
         studyprogram = response.meta['parent']
         number_of_layers = studyprogram['url'].count('%7C')
         links = response.xpath('//a')
@@ -138,7 +137,6 @@ class CourseCatalogSpider(scrapy.Spider):
             yield request
 
         parent['subjects'] = subjects
-
         yield parent
 
     def extract_subject(self, response):
@@ -162,7 +160,9 @@ class CourseCatalogSpider(scrapy.Spider):
         subject['hyperlink'] = hyperlink
 
         # provide timetable entries and persons
-        subject['timetable'] = self.extract_timetable(response)
+        timetable_details = self.extract_timetable(response)
+        subject['timetable'] = timetable_details['entries']
+        subject['einzeltermine_links'] = timetable_details['links']
         subject['persons'] = self.extract_persons(response)
 
         path = "//table[@summary=\"" + self.table_summary_for_more + "\"]"
@@ -179,6 +179,7 @@ class CourseCatalogSpider(scrapy.Spider):
         entries = []
         table_xpath = "//table[@summary=\""+ self.table_summary_for_time+"\"]"
         tables = response.xpath(table_xpath)
+        einzeltermine_links = []
         for table in tables:
             number_entries = int(float(table.xpath("count(tr)").get())-1)
             for index in range(2, 2+number_entries):
@@ -204,7 +205,8 @@ class CourseCatalogSpider(scrapy.Spider):
                                          elearn = elearn,
                                          einzeltermine_link = einzeltermine_link)
                                )
-        return entries
+                einzeltermine_links.append(einzeltermine_link)
+        return {'entries': entries, 'links': einzeltermine_links}
 
     def extract_persons(self, response):
         '''

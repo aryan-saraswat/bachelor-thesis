@@ -46,6 +46,7 @@ class Subject(CourseCatalogItem):
     semester = scrapy.Field() # string
     persons = scrapy.Field() # Link[]
     timetable = scrapy.Field() # TimeEntry[]
+    einzeltermine_links = scrapy.Field() # array containing all the links of the einzeltermine
     language = scrapy.Field() # string
     hyperlink = scrapy.Field() # string
     description = scrapy.Field() # string
