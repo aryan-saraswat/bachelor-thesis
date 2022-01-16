@@ -8,9 +8,21 @@
 from itemadapter import ItemAdapter
 
 
-class NewprojPipeline:
+class LsfPipeline:
+    # def process_item(self, item, spider):
+    #     # remove unwanted symbols
+    #     if len(item['name'].split('\n')) >= 2:
+    #         item['name'] = str(item['name']).split('\n')[1].strip(' ')
+    #     return item
+
     def process_item(self, item, spider):
-        # remove unwanted symbols
-        if len(item['name'].split('\n')) >= 2:
-            item['name'] = str(item['name']).split('\n')[1].strip(' ')
-        return item
+        if 'type' in item.keys() and item['type'] == 'Einzeltermine':
+            einzeltermine = item['einzeltermine']
+            einzeltermine_new = []
+            for termin in einzeltermine:
+                termin = termin.replace('<li>', '').replace('</li>', '').replace('\\n', '').replace('\\t', '').strip()
+                einzeltermine_new.append(termin)
+            item['einzeltermine'] = einzeltermine_new
+            return item
+        else:
+            return item

@@ -233,11 +233,11 @@ class CourseCatalogSpider(scrapy.Spider):
         table_index = index + 3
         entry_element_str = "tr[" + str(table_index) + "]"
         rows = table.xpath(entry_element_str)
-        needed_cells = rows[0].xpath('td[1]/div[1]/ul[1]/li')
+        needed_cells = rows[0].xpath('td/div/ul/li')
         yield {
             'subject_id': subject_id,
             'type': 'Einzeltermine',
-            'einzeltermine': needed_cells[0].get()
+            'einzeltermine': needed_cells.getall()
         }
 
 
