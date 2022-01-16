@@ -57,7 +57,7 @@ class Subject(CourseCatalogItem):
     excluded = scrapy.Field() # string
 
 class TimeEntry(scrapy.Item):
-    type = "time-entry"
+    type = "time_entry"
     day = scrapy.Field() # string
     time = scrapy.Field() # string
     rhythm = scrapy.Field() # string
@@ -69,6 +69,6 @@ class TimeEntry(scrapy.Item):
     einzeltermine_link = scrapy.Field()
 
 class Person(scrapy.Item):
-    type="person"
+    type = "person"
     name = scrapy.Field()
     url = scrapy.Field()
