@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import re
-from ..items import StudyProgram, Category, Subject, TimeEntry, Person
+from ..items import StudyProgram, Category, Subject, TimeEntry, Person, Einzeltermin
 
 
 class CourseCatalogSpider(scrapy.Spider):
@@ -32,7 +32,7 @@ class CourseCatalogSpider(scrapy.Spider):
             request.meta["id"] = self.extract_category_id(page)
             yield request
 
-    def extract_studyprograms(self, response):
+    def extract_studyprograms(self, response): #extract studyprograms
         link = response.meta['faculty'].attrib['href']
         number_of_layers = link.count('%7C')
         studyprograms = []
@@ -150,6 +150,21 @@ class CourseCatalogSpider(scrapy.Spider):
         language = response.xpath("//table[1]//tr[8]/td[1]/text()").get()
         hyperlink = response.xpath("//table[1]//tr[7]/td[1]/text()").get()
 
+        # timetable links
+        table_xpath = "//table[@summary=\""+ self.table_summary_for_time+"\"]"
+        table = response.xpath(table_xpath)[0]
+        timetable_links = []
+        number_entries = int(float(table.xpath("count(tr)").get()) - 1)
+        for index in range(2, 2+number_entries):
+            link = table.xpath('tr['+ str(index)+']/td[1]/a[1]')
+            timetable_links.append(link.attrib['href'])
+
+        for index,link in enumerate(timetable_links):
+            request = scrapy.Request(link, callback=self.extract_einzeltermine)
+            request.meta['index'] = index
+            request.meta['subject_id'] = subject['id']
+            yield request
+
         # adding table data ot subject
         subject['subject_type'] = subject_type
         subject['semester'] = semester
@@ -159,10 +174,10 @@ class CourseCatalogSpider(scrapy.Spider):
         subject['language'] = language
         subject['hyperlink'] = hyperlink
 
-        # provide timetable entries and persons
-        timetable_details = self.extract_timetable(response)
-        subject['timetable'] = timetable_details['entries']
-        subject['einzeltermine_links'] = timetable_details['links']
+        # provide timetable entries
+        subject['timetable'] = self.extract_timetable(response)
+
+        #provide persons
         subject['persons'] = self.extract_persons(response)
 
         path = "//table[@summary=\"" + self.table_summary_for_more + "\"]"
@@ -208,6 +223,30 @@ class CourseCatalogSpider(scrapy.Spider):
                 einzeltermine_links.append(einzeltermine_link)
         return {'entries': entries, 'links': einzeltermine_links}
 
+    def extract_einzeltermine(self, response):
+        url = response.url
+        termin_id = url.split('=')[-1]
+        index = response.meta['index']
+        subject_id = response.meta['subject_id']
+
+        table_xpath = "//table[@summary=\"" + self.table_summary_for_time + "\"]"
+        tables = response.xpath(table_xpath)
+        table = tables[0]
+        table_index = index + 3
+        entry_element_str = "tr[" + str(table_index) + "]"
+        rows = table.xpath(entry_element_str)
+        needed_cells = rows[0].xpath('td/div/ul/li')
+        einzeltermine = needed_cells.getall()
+
+        scraped_einzeltermine = Einzeltermin(
+            type='Einzeltermine',
+            subject_id=subject_id,
+            termin_id=termin_id,
+            einzeltermine=einzeltermine
+        )
+        yield scraped_einzeltermine
+
+
     def extract_persons(self, response):
         '''
         Extracts all listed persons for a subject
@@ -233,7 +272,7 @@ class CourseCatalogSpider(scrapy.Spider):
         for link in links:
             try:
                 href = str(link.attrib['href'])
-                if (href.count(symbol) >= count and href.endswith("&P.vx=kurz")):
+                if href.count(symbol) >= count and href.endswith("&P.vx=kurz"):
                     filtered_links.append(link)
             except:
                 #self.log('excluded link with no href')
@@ -249,7 +288,7 @@ class CourseCatalogSpider(scrapy.Spider):
         for link in link_elements:
             try:
                 href = str(link.attrib['href'])
-                if(href.find("publishSubDir=veranstaltung")>0):
+                if href.find("publishSubDir=veranstaltung") > 0:
                     filtered_links.append(link)
             except:
                 #self.log('excluded link with no href')
