@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import re
-from ..items import StudyProgram, Category, Subject, TimeEntry, Person
+from ..items import StudyProgram, Category, Subject, TimeEntry, Person, Einzeltermin
 
 
 class CourseCatalogSpider(scrapy.Spider):
@@ -224,6 +224,8 @@ class CourseCatalogSpider(scrapy.Spider):
         return entries
 
     def extract_einzeltermine(self, response):
+        url = response.url
+        termin_id = url.split('=')[-1]
         index = response.meta['index']
         subject_id = response.meta['subject_id']
 
@@ -234,11 +236,15 @@ class CourseCatalogSpider(scrapy.Spider):
         entry_element_str = "tr[" + str(table_index) + "]"
         rows = table.xpath(entry_element_str)
         needed_cells = rows[0].xpath('td/div/ul/li')
-        yield {
-            'subject_id': subject_id,
-            'type': 'Einzeltermine',
-            'einzeltermine': needed_cells.getall()
-        }
+        einzeltermine = needed_cells.getall()
+
+        scraped_einzeltermine = Einzeltermin(
+            type='Einzeltermine',
+            subject_id=subject_id,
+            termin_id=termin_id,
+            einzeltermine=einzeltermine
+        )
+        yield scraped_einzeltermine
 
 
     def extract_persons(self, response):
@@ -266,7 +272,7 @@ class CourseCatalogSpider(scrapy.Spider):
         for link in links:
             try:
                 href = str(link.attrib['href'])
-                if (href.count(symbol) >= count and href.endswith("&P.vx=kurz")):
+                if href.count(symbol) >= count and href.endswith("&P.vx=kurz"):
                     filtered_links.append(link)
             except:
                 #self.log('excluded link with no href')
@@ -282,7 +288,7 @@ class CourseCatalogSpider(scrapy.Spider):
         for link in link_elements:
             try:
                 href = str(link.attrib['href'])
-                if(href.find("publishSubDir=veranstaltung")>0):
+                if href.find("publishSubDir=veranstaltung") > 0:
                     filtered_links.append(link)
             except:
                 #self.log('excluded link with no href')
