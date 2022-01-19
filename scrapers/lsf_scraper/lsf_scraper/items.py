@@ -72,3 +72,9 @@ class Person(scrapy.Item):
     type = "person"
     name = scrapy.Field()
     url = scrapy.Field()
+
+class Einzeltermin(scrapy.Item):
+    type = scrapy.Field()
+    subject_id = scrapy.Field()
+    termin_id = scrapy.Field()
+    einzeltermine = scrapy.Field()
