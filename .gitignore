@@ -14,9 +14,10 @@ venv.bak/
 __pycache__/
 *.py[cod]
 
-thesis_work/lsf_scraper/lecture_results.json
-thesis_work/vdb_scraper/description_results.json
+scrapers/lsf_scraper/lecture_results.json
+scrapers/vdb_scraper/description_results.json
 
-thesis_work/vdb_scraper/vdb_scraper/description_results.json
+scrapers/vdb_scraper/vdb_scraper/description_results.json
 
 Courses_data.csv
+test.py
