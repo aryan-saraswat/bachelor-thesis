@@ -62,9 +62,10 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'vdb_scraper.pipelines.VdbScraperPipeline': 300,
-#}
+ITEM_PIPELINES = {
+   'vdb_scraper.pipelines.VdbScraperPipeline': 300,
+   'vdb_scraper.pipelines.CorrectSpellingOfParentCourse': 800
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
