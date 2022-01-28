@@ -1,5 +1,5 @@
 # run following command to store results of scraping in temp_results.json
-# scrapy crawl main -o temp_results.json
+# scrapy crawl vdb-scraper -o temp_results.json
 # -*- coding: utf-8 -*-
 import scrapy
 from ..items import VdbCatalogItem, StudyCourse, Lecture
