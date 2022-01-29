@@ -1,0 +1,15 @@
+{
+    "scraped_lsf_data_directory": "scrapers/lsf_scraper/lecture_results.json",
+    "post_processed_lsf_data_directory": "scrapers/lsf_scraper/lsf_scraper/Data/post_processed_lectures.json",
+
+    "scraped_vdb_data_directory": "scrapers/vdb_scraper/description_results.json",
+    "post_processed_vdb_data_directory": "scrapers/vdb_scraper/vdb_scraper/Data/post_processed_descriptions.json",
+
+    "lsf_scraper_directory": "scrapers/lsf_scraper",
+    "vdb_scraper_directory": "scrapers/vdb_scraper",
+
+    "lsf_post_processing": "scrapers/lsf_scraper/lsf_scraper/post_processing",
+    "vdb_post_processing": "scrapers/vdb_scraper/vdb_scraper/post_processing",
+
+    "last_done": ""
+}

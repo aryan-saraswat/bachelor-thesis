@@ -5,6 +5,9 @@ import json
 LECTURE_DATA = 'D:\\Thesis scraper\\scrapers\\lsf_scraper\\lecture_results.json'
 OUTPUT_FILE = 'D:\\Thesis scraper\\scrapers\\lsf_scraper\\lsf_scraper\\Data\\post_processed_lectures.json'
 
+def clear_post_processed_directory(): # clean the destination directory before filling it with new data
+    open(OUTPUT_FILE, 'w').close()
+
 def merge_lectures_with_same_id(subjects_list) -> dict:
     seen_subjects_dict = {}
     for entry in subjects_list:
@@ -46,6 +49,7 @@ def create_list_from_lecture_dict(lectures_dict):
         lecture_list.append(value)
     return lecture_list
 
+clear_post_processed_directory()
 with io.open(LECTURE_DATA, encoding='utf8') as json_file:
     data = json.load(json_file)
     subjects_dict = {}
