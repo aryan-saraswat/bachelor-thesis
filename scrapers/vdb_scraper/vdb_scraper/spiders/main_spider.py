@@ -63,6 +63,11 @@ class CourseCatalogSpider(scrapy.Spider):
             request.meta["parent_course"] = parent_course
             yield request
 
+        for katalog_link in katalog_links:
+            request = scrapy.Request(response.urljoin(katalog_link.attrib['href']), callback=self.extract_katalog_details)
+            request.meta['parent_course'] = parent_course
+            yield request
+
     def extract_lecture_details(self, response):
         try:
             parent_course = response.meta["parent_course"]
@@ -91,7 +96,46 @@ class CourseCatalogSpider(scrapy.Spider):
         }
         yield Lecture(name=lecture_title, url=lecture_url, id=lecture_id, description=description, type="Lecture", parent_course=parent_course)
 
+    def extract_katalog_details(self, response):
+        try:
+            parent_course = response.meta["parent_course"]
+        except:
+            parent_course = {
+                "name": "UNKNOWN",
+                "url": "UNKNOWN",
+                "id": "UNKNOWN",
+                "type": "StudyCourse"
+            }
+        fieldset_xpath = "//fieldset[@class='highlight-blue']"
+        fieldsets = response.xpath(fieldset_xpath)
+        needed_fieldset = fieldsets[1]
+        ahref_links = needed_fieldset.xpath('ul/li/a')
+        module_links = ahref_links.getall()
+        for module_link in ahref_links:
+            request = scrapy.Request(response.urljoin(module_link.attrib['href']), callback=self.extract_lectures_from_module)
+            request.meta['parent_course'] = parent_course
+            yield request
 
+    def extract_lectures_from_module(self, response):
+        try:
+            parent_course = response.meta["parent_course"]
+        except:
+            parent_course = {
+                "name": "UNKNOWN",
+                "url": "UNKNOWN",
+                "id": "UNKNOWN",
+                "type": "StudyCourse"
+            }
+        fieldset_xpath = "//fieldset[@class='highlight-blue']"
+        fieldsets = response.xpath(fieldset_xpath)
+        needed_fieldset = fieldsets[3]
+        ahref_links = needed_fieldset.xpath('ul/li/a')
+        lecture_links = ahref_links.getall()
+
+        for lecture_link in ahref_links:
+            request = scrapy.Request(response.urljoin(lecture_link.attrib['href']), callback=self.extract_lecture_details)
+            request.meta['parent_course'] = parent_course
+            yield request
 
     def filter_links_by_lecture_katalog(self, link_elements):
         lecture_links = []
