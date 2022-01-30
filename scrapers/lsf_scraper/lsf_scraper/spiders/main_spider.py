@@ -152,18 +152,20 @@ class CourseCatalogSpider(scrapy.Spider):
 
         # timetable links
         table_xpath = "//table[@summary=\""+ self.table_summary_for_time+"\"]"
-        table = response.xpath(table_xpath)[0]
-        timetable_links = []
-        number_entries = int(float(table.xpath("count(tr)").get()) - 1)
-        for index in range(2, 2+number_entries):
-            link = table.xpath('tr['+ str(index)+']/td[1]/a[1]')
-            timetable_links.append(link.attrib['href'])
+        tables = response.xpath(table_xpath)
+        for table_index, table in enumerate(tables):
+            timetable_links = []
+            number_entries = int(float(table.xpath("count(tr)").get()) - 1)
+            for index in range(2, 2+number_entries):
+                link = table.xpath('tr['+ str(index)+']/td[1]/a[1]')
+                timetable_links.append(link.attrib['href'])
 
-        for index,link in enumerate(timetable_links):
-            request = scrapy.Request(link, callback=self.extract_einzeltermine)
-            request.meta['index'] = index
-            request.meta['subject_id'] = subject['id']
-            yield request
+            for index,link in enumerate(timetable_links):
+                request = scrapy.Request(link, callback=self.extract_einzeltermine)
+                request.meta['index'] = index
+                request.meta['table_index'] = table_index
+                request.meta['subject_id'] = subject['id']
+                yield request
 
         # adding table data ot subject
         subject['subject_type'] = subject_type
@@ -227,11 +229,12 @@ class CourseCatalogSpider(scrapy.Spider):
         url = response.url
         termin_id = url.split('=')[-1]
         index = response.meta['index']
+        table_index = response.meta['table_index']
         subject_id = response.meta['subject_id']
 
         table_xpath = "//table[@summary=\"" + self.table_summary_for_time + "\"]"
         tables = response.xpath(table_xpath)
-        table = tables[0]
+        table = tables[table_index]
         table_index = index + 3
         entry_element_str = "tr[" + str(table_index) + "]"
         rows = table.xpath(entry_element_str)
