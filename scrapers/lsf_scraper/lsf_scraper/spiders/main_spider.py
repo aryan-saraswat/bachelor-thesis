@@ -201,6 +201,8 @@ class CourseCatalogSpider(scrapy.Spider):
             number_entries = int(float(table.xpath("count(tr)").get())-1)
             for index in range(2, 2+number_entries):
                 entry_element_str = "tr["+str(index) + "]"
+                link_selector = table.xpath(entry_element_str+"/td[1]/a[1]")
+                id = self.extract_einzeltermin_id(link_selector.attrib['href'])
                 day = self.clear_string(table.xpath(entry_element_str+"/td[2]/text()").get())
                 time = self.clear_string(table.xpath(entry_element_str+"/td[3]/text()").get())
                 rhythm = self.clear_string(table.xpath(entry_element_str+"/td[4]/text()").get())
@@ -212,7 +214,8 @@ class CourseCatalogSpider(scrapy.Spider):
                 einzeltermine_link = ''
                 if "expand" in table.xpath(entry_element_str+"/td[1]/a[1]/@href").get():
                     einzeltermine_link = table.xpath(entry_element_str+"/td[1]/a[1]/@href").get()
-                entries.append(TimeEntry(day=day,
+                entries.append(TimeEntry(id=id,
+                                         day=day,
                                          time=time,
                                          rhythm=rhythm,
                                          duration = duration,
@@ -309,3 +312,8 @@ class CourseCatalogSpider(scrapy.Spider):
 
     def clear_string(self, string_to_clear):
         return string_to_clear.replace("\t","").replace("\n","").strip(' ')
+
+    def extract_einzeltermin_id(self, einzeltermin_link: str):
+        if einzeltermin_link.split('#')[-1].isnumeric():
+            return einzeltermin_link.split('#')[-1]
+        return ''

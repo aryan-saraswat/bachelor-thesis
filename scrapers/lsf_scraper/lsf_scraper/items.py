@@ -59,6 +59,7 @@ class Subject(CourseCatalogItem):
 
 class TimeEntry(scrapy.Item):
     type = "time_entry"
+    id = scrapy.Field() # string
     day = scrapy.Field() # string
     time = scrapy.Field() # string
     rhythm = scrapy.Field() # string
