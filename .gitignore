@@ -17,6 +17,9 @@ __pycache__/
 scrapers/lsf_scraper/lecture_results.json
 scrapers/vdb_scraper/description_results.json
 
+scrapers/lsf_scraper/lsf_scraper/Data/post_processed_lectures.json
+scrapers/vdb_scraper/vdb_scraper/Data/post_processed_descriptions.json
+
 scrapers/vdb_scraper/vdb_scraper/description_results.json
 
 Courses_data.csv
