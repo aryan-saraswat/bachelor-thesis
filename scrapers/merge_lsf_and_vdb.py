@@ -5,6 +5,7 @@ from pprint import pprint
 
 lsf_data_directory = '.\\lsf_scraper\\lsf_scraper\\Data\\post_processed_lectures.json'
 vdb_data_directory = '.\\vdb_scraper\\vdb_scraper\\Data\\post_processed_descriptions.json'
+merged_data_directory = '.\\merged_data.json'
 
 def similar(name1, nameList):
     ratio = 0
@@ -18,26 +19,27 @@ def similar(name1, nameList):
     else:
         return (None, None)
 
-with io.open(vdb_data_directory, encoding='UTF8') as vdb_data, io.open(lsf_data_directory, encoding='UTF8') as lsf_data:
+with io.open(vdb_data_directory, encoding='UTF8') as vdb_data, io.open(lsf_data_directory, encoding='UTF8') as lsf_data, io.open(merged_data_directory, 'w', encoding='UTF8') as output_file:
     vdb_json = json.load(vdb_data)
     lsf_json = json.load(lsf_data)
 
     print(len(vdb_json))
     print(len(lsf_json))
+    print(lsf_json)
     matches = 0
     somewhat_same = 0
     similarity_too_low = 0
 
-    lecture_name_list = list(vdb_json.keys())
-    print(lecture_name_list)
+    lecture_name_list = list(vdb_json.keys()) # list of names of lectures in the Vorlesungsdatenbank data (descriptions)
     distant_matches = []
 
-    for lsf_id, lsf_value in lsf_json.items():
-        subject = lsf_value['name']
-        if 'zu' in subject:
-            subject = ' '.join(subject.split(' ')[2:]).replace('"', '')
+    for lecture in lsf_json:
+        subject = lecture['name']
+        # if 'zu' in subject:
+        #     subject = ' '.join(subject.split(' ')[2:]).replace('"', '')
         if subject in vdb_json.keys(): # checking if the subject from the lsf_data is in the keys of the vdb dictionary
             matches = matches + 1
+            lecture['description'] = vdb_json[subject]['description']['en'] # en because only English description is relevant for us
             # print('exact match:\t{}\t---->\t{}'.format(subject, lsf_value['name']))
         else:
             result = similar(subject, lecture_name_list)
@@ -52,9 +54,13 @@ with io.open(vdb_data_directory, encoding='UTF8') as vdb_data, io.open(lsf_data_
                     "closest_match": closest_match,
                     "ratio": ratio
                 })
+                lecture['description'] = vdb_json[closest_match]['description']['en'] # if it's a close enough match, then merge the descriptions anyway (English ones)
 
     print(len(distant_matches))
     pprint(distant_matches)
     print('exact matches: {}, somewhat same: {}, no close enough match: {}'.format(matches, somewhat_same, similarity_too_low))
+
+    json.dump(lsf_json, output_file, ensure_ascii=False)
+    output_file.close()
     vdb_data.close()
     lsf_data.close()

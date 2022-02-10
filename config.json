@@ -5,6 +5,9 @@
     "scraped_vdb_data_directory": "scrapers/vdb_scraper/description_results.json",
     "post_processed_vdb_data_directory": "scrapers/vdb_scraper/vdb_scraper/Data/post_processed_descriptions.json",
 
+    "merged_data_directory": "scrapers/merged_data.json",
+    "merge_data_post_processing_directory": "scrapers",
+
     "lsf_scraper_directory": "scrapers/lsf_scraper",
     "vdb_scraper_directory": "scrapers/vdb_scraper",
 
