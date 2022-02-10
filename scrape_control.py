@@ -22,7 +22,10 @@ def run(config):
     vdb_data = os.path.abspath(os.path.join(os.path.dirname(__file__), config['scraped_vdb_data_directory']))
     vdb_data_post_processed = os.path.abspath(os.path.join(os.path.dirname(__file__), config['post_processed_vdb_data_directory']))
 
-    clean_files([lsf_data, lsf_data_post_processed, vdb_data, vdb_data_post_processed])
+    merged_data_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), config['merged_data_directory']))
+    merge_data_post_processing_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), config['merge_data_post_processing_directory']))
+
+    clean_files([lsf_data, lsf_data_post_processed, vdb_data, vdb_data_post_processed, merged_data_directory])
 
     lsf_scraper_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), config['lsf_scraper_directory']))
     vdb_scraper_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), config['vdb_scraper_directory']))
@@ -45,6 +48,9 @@ def run(config):
 
     os.chdir(vdb_post_processing_directory)
     subprocess.call(f"python process_data.py", shell=True)
+
+    os.chdir(merge_data_post_processing_directory)
+    subprocess.call(f"python merge_lsf_and_vdb.py", shell=True)
 
     # 2b. post-process and save the ratings data
     # os.chdir(os.path.join(config["ratingsScraper"], "course_ratings", "post_processing"))
