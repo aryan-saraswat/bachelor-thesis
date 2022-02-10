@@ -24,3 +24,5 @@ scrapers/vdb_scraper/vdb_scraper/description_results.json
 
 Courses_data.csv
 test.py
+
+scrapers/merged_data.json
