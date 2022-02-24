@@ -4,6 +4,7 @@
 import scrapy
 import re
 from ..items import StudyProgram, Category, Subject, TimeEntry, Person, Einzeltermin
+from datetime import date
 
 
 class CourseCatalogSpider(scrapy.Spider):
@@ -265,9 +266,10 @@ class CourseCatalogSpider(scrapy.Spider):
 
         for index in range(2,2+number_persons):
             person = response.xpath(table_xpath+"/tr["+str(index)+"]/td/a")
+            uid = self.extract_professor_id(person.attrib['href'])
             name = self.clear_string(person.css("::text").get())
             url = person.attrib['href']
-            persons.append(Person(name=name, url=url))
+            persons.append(Person(id=uid, name=name, url=url))
 
         return persons
 
@@ -309,6 +311,9 @@ class CourseCatalogSpider(scrapy.Spider):
 
     def extract_subject_id(self, href):
         return re.findall(r'\d+', str(href))[0]
+
+    def extract_professor_id(self, href):
+        return str(href).split('=')[-1]
 
     def clear_string(self, string_to_clear):
         return string_to_clear.replace("\t","").replace("\n","").strip(' ')

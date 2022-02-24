@@ -72,6 +72,7 @@ class TimeEntry(scrapy.Item):
 
 class Person(scrapy.Item):
     type = "person"
+    id = scrapy.Field()
     name = scrapy.Field()
     url = scrapy.Field()
 
