@@ -4,7 +4,7 @@ from base import Base
 class Timetable(Base):
     __tablename__ = 'timetable'
 
-    id= Column(String, primary_key=True)
+    id = Column(String, primary_key=True)
     day = Column(String)
     fro = Column(String)
     to = Column(String)
@@ -18,7 +18,7 @@ class Timetable(Base):
     lecture_id = Column(Integer, ForeignKey('lecture.id'))
     dates = Column(ARRAY(Date))
 
-    def __init__(self, id, day, fro, to, rhythm, duration, room, status, comment, elearn, link, lecture_id, dates):
+    def __init__(self, id, day, fro, to, rhythm, duration, room, status, comment, elearn, link, lecture_id, dates=[""]):
         self.id = id
         self.day = day
         self.fro = fro
