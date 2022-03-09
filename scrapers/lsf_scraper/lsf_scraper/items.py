@@ -33,12 +33,14 @@ class StudyProgram(CourseCatalogItem):
 
 class Category(CourseCatalogItem):
     type = "category"
+    root_id = scrapy.Field()
     subjects = scrapy.Field() # Subject[]
     categories = scrapy.Field() # Category[]
 
 
 class Subject(CourseCatalogItem):
     type = "subject"
+    root_id = scrapy.Field()
     subject_type = scrapy.Field() # one of Vorlesung, Übung, Praktikum, Seminar, Kolloquium, Übung/Praktikum, Tutorium
     shorttext = scrapy.Field() # string
     longtext = scrapy.Field() # string
@@ -72,6 +74,7 @@ class TimeEntry(scrapy.Item):
 
 class Person(scrapy.Item):
     type = "person"
+    id = scrapy.Field()
     name = scrapy.Field()
     url = scrapy.Field()
 

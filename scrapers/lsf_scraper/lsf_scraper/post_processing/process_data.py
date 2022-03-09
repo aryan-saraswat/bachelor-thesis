@@ -5,18 +5,23 @@ from pprint import pprint
 # LECTURE_DATA = os.path.abspath(os.path.join(os.path.dirname(__file__), "scrapers", "lsf_scraper", "lecture_results.json"))
 LECTURE_DATA = 'D:\\Thesis scraper\\scrapers\\lsf_scraper\\lecture_results.json'
 OUTPUT_FILE = 'D:\\Thesis scraper\\scrapers\\lsf_scraper\\lsf_scraper\\Data\\post_processed_lectures.json'
+STUDY_PROGRAMS_FILE = 'D:\\Thesis scraper\\scrapers\\study_programs.json'
 
-def clear_post_processed_directory(): # clean the destination directory before filling it with new data
+def clear_output_directories(): # clean the destination directory before filling it with new data
     open(OUTPUT_FILE, 'w').close()
+    open(STUDY_PROGRAMS_FILE, 'w').close()
 
 def merge_lectures_with_same_id(subjects_list) -> dict:
     seen_subjects_dict = {}
     for entry in subjects_list:
         if entry['id'] in seen_subjects_dict.keys():
             seen_subjects_dict[entry['id']]['parent_id'].append(entry['parent_id'])
+            if entry['root_id'] not in seen_subjects_dict[entry['id']]['root_id']:
+                seen_subjects_dict[entry['id']]['root_id'].append(entry['root_id'])
         else:
             seen_subjects_dict[entry['id']] = entry
             seen_subjects_dict[entry['id']]['parent_id'] = [entry['parent_id']]
+            seen_subjects_dict[entry['id']]['root_id'] = [entry['root_id']]
 
     return seen_subjects_dict
 
@@ -71,19 +76,22 @@ def assign_einzeltermine_to_correct_lecture(lecture, einzeltermin) -> dict:
     lecture['timetable'] = timetable_entries
     return lecture
 
-clear_post_processed_directory()
+clear_output_directories()
 with io.open(LECTURE_DATA, encoding='utf8') as json_file:
     data = json.load(json_file) # load raw scraped data
     subjects_dict = {}
     categories_dict = {}
     subjects_list = []
     einzeltermine_list = []
+    studyprogram_list = []
 
     for entry in data:
         if 'subject_type' in entry.keys():
             subjects_list.append(entry) # storing all lectures
         elif 'type' in entry.keys():
             einzeltermine_list.append(entry) # storing all einzeltermine
+        elif 'catalog' in entry.keys():
+            studyprogram_list.append(entry)
 
     merged_lectures = merge_lectures_with_same_id(subjects_list) # dictionary containing no duplicate lectures
     einzeltermine_dict = merge_einzeltermine_with_same_subject_id(einzeltermine_list) # dictionary containing einzeltermine
@@ -95,14 +103,19 @@ with io.open(LECTURE_DATA, encoding='utf8') as json_file:
             merged_lectures[key] = assign_einzeltermine_to_correct_lecture(value, einzeltermine_dict[key])
     print(merged_lectures)
     print(len(merged_lectures))
+    print(len(studyprogram_list))
 
-    final_merged_lectures = []
+    final_merged_lectures_and_categories = []
 
     for key, value in merged_lectures.items():
-        final_merged_lectures.append(value)
+        final_merged_lectures_and_categories.append(value)
 
     with io.open(OUTPUT_FILE, 'w', encoding='UTF8') as output_file:
-        json.dump(final_merged_lectures, output_file, ensure_ascii=False)
+        json.dump(final_merged_lectures_and_categories, output_file, ensure_ascii=False)
+        output_file.close()
+
+    with io.open(STUDY_PROGRAMS_FILE, 'w', encoding='UTF8') as output_file:
+        json.dump(studyprogram_list, output_file, ensure_ascii=False)
         output_file.close()
 
     json_file.close()

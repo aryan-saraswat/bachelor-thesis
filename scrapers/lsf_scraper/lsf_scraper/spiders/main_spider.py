@@ -4,6 +4,7 @@
 import scrapy
 import re
 from ..items import StudyProgram, Category, Subject, TimeEntry, Person, Einzeltermin
+from datetime import date
 
 
 class CourseCatalogSpider(scrapy.Spider):
@@ -26,10 +27,13 @@ class CourseCatalogSpider(scrapy.Spider):
         filtered_links = self.filter_links_by_layer(links, "%7C", 3)
         for link in filtered_links:
             page = response.urljoin(link.attrib['href'])
+            name = link.css('::text').get().strip()
             request = scrapy.Request(page, callback=self.extract_categories)
             request.meta["catalog"] = "INKO"
             request.meta['faculty'] = link
             request.meta["id"] = self.extract_category_id(page)
+            request.meta["name"] = name
+            request.meta["root_id"] = self.extract_category_id(page)
             yield request
 
     def extract_studyprograms(self, response): #extract studyprograms
@@ -94,11 +98,13 @@ class CourseCatalogSpider(scrapy.Spider):
     def extract_categories(self, response):
         try:
             parent = response.meta['parent']
-        except Exception:
+        except Exception: # main study programs (first layer in the lecture tree)
             parent = {
                 "url": response.meta['faculty'].attrib['href'],
                 "catalog": response.meta["catalog"],
-                "id": response.meta["id"]
+                "id": response.meta["id"],
+                "name": response.meta["name"],
+                "root_id": response.meta["root_id"]
             }
         number_of_layers = parent['url'].count('%7C')
         links = response.xpath("//a")
@@ -111,7 +117,7 @@ class CourseCatalogSpider(scrapy.Spider):
                 url = category_link.attrib['href']
                 name = category_link.css('::text').get()
                 id = self.extract_category_id(url)
-                category = Category(url=url, name=name, categories=[], id=id, parent_id=parent['id'])
+                category = Category(url=url, name=name, categories=[], id=id, parent_id=parent['id'], root_id=parent['root_id'])
                 page = response.urljoin(url)
                 request = scrapy.Request(page, callback=self.extract_categories)
                 request.meta['parent'] = category
@@ -130,7 +136,7 @@ class CourseCatalogSpider(scrapy.Spider):
             if link.css('::text').get().strip() not in ["belegen/abmelden", "Raumbuchung"]:
                 name = link.css('::text').get()
                 id = self.extract_subject_id(url)
-                subject = Subject(url=url, name=name, id=id, parent_id=parent['id'])
+                subject = Subject(url=url, name=name, id=id, parent_id=parent['id'], root_id=parent['root_id'])
                 request = scrapy.Request(page, callback=self.extract_subject, dont_filter=True)
                 request.meta['subject'] = subject
                 subjects.append(subject['id'])
@@ -265,9 +271,10 @@ class CourseCatalogSpider(scrapy.Spider):
 
         for index in range(2,2+number_persons):
             person = response.xpath(table_xpath+"/tr["+str(index)+"]/td/a")
+            uid = self.extract_professor_id(person.attrib['href'])
             name = self.clear_string(person.css("::text").get())
             url = person.attrib['href']
-            persons.append(Person(name=name, url=url))
+            persons.append(Person(id=uid, name=name, url=url))
 
         return persons
 
@@ -309,6 +316,9 @@ class CourseCatalogSpider(scrapy.Spider):
 
     def extract_subject_id(self, href):
         return re.findall(r'\d+', str(href))[0]
+
+    def extract_professor_id(self, href):
+        return str(href).split('=')[-1]
 
     def clear_string(self, string_to_clear):
         return string_to_clear.replace("\t","").replace("\n","").strip(' ')

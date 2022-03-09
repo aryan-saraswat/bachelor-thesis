@@ -7,6 +7,9 @@ lsf_data_directory = '.\\lsf_scraper\\lsf_scraper\\Data\\post_processed_lectures
 vdb_data_directory = '.\\vdb_scraper\\vdb_scraper\\Data\\post_processed_descriptions.json'
 merged_data_directory = '.\\merged_data.json'
 
+def clear_merged_data_directory():
+    open(merged_data_directory, 'w').close()
+
 def similar(name1, nameList):
     ratio = 0
     result = ''
