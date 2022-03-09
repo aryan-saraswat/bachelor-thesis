@@ -26,3 +26,4 @@ Courses_data.csv
 test.py
 
 scrapers/merged_data.json
+scrapers/study_programs.json
