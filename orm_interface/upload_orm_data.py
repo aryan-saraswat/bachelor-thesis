@@ -1,12 +1,14 @@
 import json
 import io
-from entities.lecture import Lecture, Professor, StudyProgram
-from entities.timetable import Timetable
+from entities.lecture import Lecture, Professor, StudyProgram, Timetable
+# from entities.timetable import Timetable
 # from entities.studyprogram import StudyProgram
 from base import Base, Session, engine
+import re
+import datetime
 
-DATA_DIRECTORY = 'scrapers/merged_data.json'
-STUDYPROGRAMS_DIRECTORY = 'scrapers/study_programs.json'
+DATA_DIRECTORY = 'D:\\Thesis scraper\\scrapers\\merged_data.json'
+STUDYPROGRAMS_DIRECTORY = 'D:\\Thesis scraper\\scrapers\\study_programs.json'
 Base.metadata.create_all(engine)
 
 session = Session()
@@ -51,6 +53,7 @@ with io.open(DATA_DIRECTORY, 'r') as data_file:
                 professors_dict[professor['id']] = Professor(professor['id'], professor['name'], professor['url'])
 
     count = 0
+    date_regex = "\s*(3[01]|[12][0-9]|0?[1-9])\.(1[012]|0?[1-9])\.((?:19|20)\d{2})\s*$"
     for lecture in data_json:
         temp_lecture = Lecture(lecture['id'], lecture['url'], lecture['name'], lecture['subject_type'], lecture['semester'], lecture['sws'], lecture['longtext'], lecture['shorttext'], lecture['language'], lecture['hyperlink'], lecture['description'])
 
@@ -67,18 +70,30 @@ with io.open(DATA_DIRECTORY, 'r') as data_file:
             if timetable_entry['id'] == "":
                 timetable_entry['id'] = str(count)
                 count += 1
-            if 'dates' not in timetable_entry.keys():
-                temp_entry = Timetable(timetable_entry['id'], timetable_entry['day'], timetable_entry['time']['from'],
-                                       timetable_entry['time']['to'], timetable_entry['rhythm'], 'duration',
-                                       timetable_entry['room'], timetable_entry['status'], timetable_entry['comment'],
-                                       timetable_entry['elearn'], timetable_entry['einzeltermine_link'], lecture['id'], [])
-            else:
-                temp_entry = Timetable(timetable_entry['id'], timetable_entry['day'], timetable_entry['time']['from'],
-                                       timetable_entry['time']['to'], timetable_entry['rhythm'], 'duration',
+
+            duration = ''
+            duration_from = duration_to = datetime.date(1999,2,4)
+            if type(timetable_entry['duration']) == str:
+                if 'am' in timetable_entry['duration']:
+                    duration = 'AM'
+                elif 'von' in timetable_entry['duration']:
+                    duration = 'VON'
+                elif len(timetable_entry['duration']) == 0:
+                    duration = 'EMPTY'
+
+            dates = []
+            if 'dates' in timetable_entry.keys():
+                dates = timetable_entry['dates']
+                if len(dates) > 0:
+                    duration_from = dates[0]
+                    duration_to = dates[-1]
+
+            temp_entry = Timetable(timetable_entry['id'], timetable_entry['day'], timetable_entry['time']['from'],
+                                       timetable_entry['time']['to'], timetable_entry['rhythm'], duration, duration_from, duration_to,
                                        timetable_entry['room'], timetable_entry['status'], timetable_entry['comment'],
                                        timetable_entry['elearn'], timetable_entry['einzeltermine_link'], lecture['id'],
-                                       timetable_entry['dates'])
-            temp_lecture.children.append(temp_entry)
+                                       dates)
+            temp_lecture.timetables.append(temp_entry)
         session.add(temp_lecture)
 
     data_file.close()
