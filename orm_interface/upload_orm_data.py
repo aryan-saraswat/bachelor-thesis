@@ -1,10 +1,7 @@
 import json
 import io
 from entities.lecture import Lecture, Professor, StudyProgram, Timetable
-# from entities.timetable import Timetable
-# from entities.studyprogram import StudyProgram
 from base import Base, Session, engine
-import re
 import datetime
 
 DATA_DIRECTORY = 'D:\\Thesis scraper\\scrapers\\merged_data.json'
@@ -55,7 +52,32 @@ with io.open(DATA_DIRECTORY, 'r') as data_file:
     count = 0
     date_regex = "\s*(3[01]|[12][0-9]|0?[1-9])\.(1[012]|0?[1-9])\.((?:19|20)\d{2})\s*$"
     for lecture in data_json:
-        temp_lecture = Lecture(lecture['id'], lecture['url'], lecture['name'], lecture['subject_type'], lecture['semester'], lecture['sws'], lecture['longtext'], lecture['shorttext'], lecture['language'], lecture['hyperlink'], lecture['description'])
+        lecture_id = lecture['id']
+        lecture_url = lecture['url']
+        lecture_name = lecture['name']
+        lecture_subject_type = lecture['subject_type']
+        lecture_semester = lecture['semester']
+        lecture_sws = lecture['sws']
+        lecture_longtext = lecture['longtext']
+        lecture_shorttext = lecture['shorttext']
+        lecture_language = lecture['language']
+        lecture_hyperlink = lecture['hyperlink']
+        lecture_description = lecture['description']
+        lecture_keywords = lecture["keywords"]
+
+        if lecture_subject_type == 'Übung' and 'Übung' not in lecture_name:
+            lecture_name = 'Übung zu ' + lecture_name
+        elif lecture_subject_type == 'Übung/mit Tutorien' and 'Übung/mit Tutorien' not in lecture_name:
+            lecture_name = 'Übung/mit Tutorien zu ' + lecture_name
+        elif lecture_subject_type == 'Tutorium' and 'Tutorium' not in lecture_name:
+            lecture_name = 'Tutorium zu ' + lecture_name
+        elif lecture_subject_type == 'Einführung' and 'Einfürhrung' not in lecture_name:
+            lecture_name = 'Einführung zu ' + lecture_name
+
+        temp_lecture = Lecture(id=lecture_id, name=lecture_name, url=lecture_url, subject_type=lecture_subject_type,
+                               semester=lecture_semester,sws=lecture_sws, longtext=lecture_longtext, shorttext=lecture_shorttext,
+                               language=lecture_language,hyperlink=lecture_hyperlink, description=lecture_description,
+                               keywords=lecture_keywords)
 
         professors = lecture['persons']
         for professor in professors:

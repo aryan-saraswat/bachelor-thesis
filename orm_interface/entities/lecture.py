@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, ForeignKey, Integer, ARRAY, Date
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import JSONB
 from orm_interface.base import Base
 
 class Lecture_Professor(Base):
@@ -32,8 +33,9 @@ class Lecture(Base):
     root_id = relationship('StudyProgram',
                            secondary='lecture_studyprogram',
                            back_populates='lectures')
+    keywords = Column(ARRAY(JSONB))
 
-    def __init__(self, id, url, name, subject_type, semester, sws, longtext, shorttext, language, hyperlink, description):
+    def __init__(self, id, url, name, subject_type, semester, sws, longtext, shorttext, language, hyperlink, description, keywords):
         self.id = id
         self.url = url
         self.name = name
@@ -45,6 +47,7 @@ class Lecture(Base):
         self.language = language
         self.hyperlink = hyperlink
         self.description = description
+        self.keywords = keywords
 
 class Professor(Base):
     __tablename__ = 'professor'

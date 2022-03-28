@@ -49,6 +49,13 @@ def get_lecture_with_id():
     lecture = session.query(Lecture).filter(Lecture.id==args.get('id')).first()
     if not lecture:
         return "not found"
+
+    lecture_professors = lecture.professors
+    professors = [{
+        "name": professor.name,
+        "url": professor.url
+    } for professor in lecture_professors]
+
     response = {
         "id": lecture.id,
         "url": lecture.url,
@@ -58,7 +65,9 @@ def get_lecture_with_id():
         "longtext": lecture.longtext,
         "shorttext": lecture.shorttext,
         "language": lecture.language,
-        "description": lecture.description
+        "description": lecture.description,
+        "keywords": lecture.keywords,
+        "professors": professors
     }
 
     return jsonify(response)
@@ -101,7 +110,8 @@ def get_lectures_with_root_id():
             "shorttext": lecture.shorttext,
             "language": lecture.language,
             "description": lecture.description,
-            "timetable": response_timetables
+            "timetable": response_timetables,
+            "keywords": lecture.keywords
         })
     return jsonify(response)
 

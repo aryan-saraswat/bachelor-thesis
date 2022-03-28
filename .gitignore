@@ -19,8 +19,9 @@ scrapers/vdb_scraper/description_results.json
 
 scrapers/lsf_scraper/lsf_scraper/Data/post_processed_lectures.json
 scrapers/vdb_scraper/vdb_scraper/Data/post_processed_descriptions.json
-
 scrapers/vdb_scraper/vdb_scraper/description_results.json
+
+orm_interface/query_test.py
 
 Courses_data.csv
 test.py
