@@ -33,6 +33,8 @@ def run(config):
     lsf_post_processing_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), config['lsf_post_processing']))
     vdb_post_processing_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), config['vdb_post_processing']))
 
+    upload_orm_data_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), config['upload_orm_data']))
+
     # 1. run both scrapers: lsf_scraper for LSF data and vdb_scraper for Vorlesungsdatenbank data
     os.chdir(lsf_scraper_directory)
     subprocess.call(f"scrapy crawl main -o lecture_results.json", shell=True)
@@ -51,6 +53,9 @@ def run(config):
 
     os.chdir(merge_data_post_processing_directory)
     subprocess.call(f"python merge_lsf_and_vdb.py", shell=True)
+
+    os.chdir(upload_orm_data_directory)
+    subprocess.call(f"python upload_orm_data.py", shell=True)
 
     # 2b. post-process and save the ratings data
     # os.chdir(os.path.join(config["ratingsScraper"], "course_ratings", "post_processing"))

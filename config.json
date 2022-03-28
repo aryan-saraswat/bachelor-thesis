@@ -14,5 +14,7 @@
     "lsf_post_processing": "scrapers/lsf_scraper/lsf_scraper/post_processing",
     "vdb_post_processing": "scrapers/vdb_scraper/vdb_scraper/post_processing",
 
+    "upload_orm_data": "orm_interface",
+
     "last_done": ""
 }
